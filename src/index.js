@@ -60,7 +60,7 @@ class Game extends React.Component {
   handleClick(i, j) {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
-    // sharow copy -> deep copy
+    // shallow copy -> deep copy
     const squares = JSON.parse(JSON.stringify(current.squares));
     if (calculateWinner(squares) || squares[i][j]) {
       return;
