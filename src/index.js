@@ -111,6 +111,7 @@ class Game extends React.Component {
     const res = calculateWinner(current.squares);
     const winner = res?.winner;
     const position = res?.position;
+    const isEnd = judgeEnd(current.squares);
 
     const moves = history.map((step, move) => {
       const desc = move ?
@@ -138,7 +139,11 @@ class Game extends React.Component {
       if (!this.state.highlight) {
         this.endHandler(position);
       }
-    } else {
+    }
+    else if (isEnd) {
+      status = 'Drow';
+    }
+    else {
       status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
     }
 
@@ -198,4 +203,9 @@ function calculateWinner(squares) {
     }
   }
   return null;
+}
+
+function judgeEnd(squares) {
+  const isEnd = !JSON.stringify(squares).includes(null);
+  return isEnd;
 }
