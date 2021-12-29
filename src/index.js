@@ -4,7 +4,7 @@ import './index.css';
 
 function Square(props) {
   return (
-    <button className="square" onClick={props.onClick}>
+    <button className={"square " + (props.end ? 'end' : '')} onClick={props.onClick}>
       {props.value}
     </button>
   );
@@ -12,10 +12,17 @@ function Square(props) {
 
 class Board extends React.Component {
   renderSquare(i, j) {
+    let end = false;
+    for (let k = 0; k < this.props.highlight?.length; k++) {
+      if (JSON.stringify(this.props.highlight[k]) === JSON.stringify([i, j])) {
+        end = true;
+      }
+    }
     return (
       <Square
         value={this.props.squares[i][j]}
         onClick={() => this.props.onClick(i, j)}
+        end={end}
       />
     );
   }
@@ -91,11 +98,19 @@ class Game extends React.Component {
     });
     console.log(this.state.toggle);
   }
+
+  endHandler(position) {
+    this.setState({
+      highlight: position,
+    });
+  }
   
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
-    const winner = calculateWinner(current.squares);
+    const res = calculateWinner(current.squares);
+    const winner = res?.winner;
+    const position = res?.position;
 
     const moves = history.map((step, move) => {
       const desc = move ?
@@ -120,6 +135,9 @@ class Game extends React.Component {
     let status;
     if (winner) {
       status = 'Winner: ' + winner;
+      if (!this.state.highlight) {
+        this.endHandler(position);
+      }
     } else {
       status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
     }
@@ -135,6 +153,7 @@ class Game extends React.Component {
           <Board
             squares={current.squares}
             onClick={(i, j) => this.handleClick(i, j)}
+            highlight={this.state.highlight}
           />
         </div>
         <div className="game-info">
@@ -171,7 +190,11 @@ function calculateWinner(squares) {
     if (squares[a[0]][a[1]] &&
       squares[a[0]][a[1]] === squares[b[0]][b[1]] &&
       squares[a[0]][a[1]] === squares[c[0]][c[1]]) {
-      return squares[a[0]][a[1]];
+      const res = {
+        'winner': squares[a[0]][a[1]],
+        'position': lines[i],
+      }
+      return res;
     }
   }
   return null;
